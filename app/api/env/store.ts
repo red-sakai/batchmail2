@@ -5,6 +5,8 @@ export type SenderEnv = {
   SENDER_EMAIL?: string;
   SENDER_APP_PASSWORD?: string;
   SENDER_NAME?: string;
+  HOST_DOMAIN?: string;
+  PORT?: string;
 };
 
 // In-memory multi-profile store
@@ -73,6 +75,8 @@ export function getActiveEnv(): SenderEnv {
       SENDER_EMAIL: env.CYBERPH_SENDER_EMAIL,
       SENDER_APP_PASSWORD: env.CYBERPH_SENDER_PASSWORD,
       SENDER_NAME: env.CYBERPH_SENDER_NAME,
+      HOST_DOMAIN: env.CYBERPH_HOST_DOMAIN,
+      PORT: env.CYBERPH_PORT,
     };
   }
   // default
