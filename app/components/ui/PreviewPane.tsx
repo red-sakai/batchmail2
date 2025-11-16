@@ -57,7 +57,7 @@ export default function PreviewPane({
   const [envOk, setEnvOk] = useState<boolean | null>(null);
   const [missing, setMissing] = useState<string[]>([]);
   const [systemVariant, setSystemVariantState] = useState<
-    "default" | "icpep" | "cisco"
+    "default" | "icpep" | "cisco" | "cyberph"
   >("default");
   // Default (.env) variant supports optional one-off upload/paste overrides (not persistent profiles)
   const [showPaste, setShowPaste] = useState(false);
@@ -73,7 +73,11 @@ export default function PreviewPane({
         if (!mounted) return;
         setEnvOk(!!d.ok);
         setMissing(Array.isArray(d.missing) ? d.missing : []);
-        if (d.systemVariant === "icpep" || d.systemVariant === "cisco")
+        if (
+          d.systemVariant === "icpep" ||
+          d.systemVariant === "cisco" ||
+          d.systemVariant === "cyberph"
+        )
           setSystemVariantState(d.systemVariant);
         else setSystemVariantState("default");
       })
@@ -187,6 +191,8 @@ export default function PreviewPane({
         ? "ICPEP SE - PUP Manila"
         : systemVariant === "cisco"
         ? "CNCP - Cisco NetConnect PUP"
+        : systemVariant === "cyberph"
+        ? "CyberPH"
         : "Default (.env)",
     [systemVariant]
   );
@@ -197,6 +203,8 @@ export default function PreviewPane({
         ? "/icpep-logo.jpg"
         : systemVariant === "cisco"
         ? "/cisco-logo.jpg"
+        : systemVariant === "cyberph"
+        ? "/cyberph-logo.svg"
         : null,
     [systemVariant]
   );
@@ -434,7 +442,11 @@ export default function PreviewPane({
                 className="border rounded px-3 py-1 bg-white text-sm text-gray-900 hover:bg-gray-50 cursor-pointer h-8"
                 value={systemVariant}
                 onChange={async (e) => {
-                  const val = e.target.value as "default" | "icpep" | "cisco";
+                  const val = e.target.value as
+                    | "default"
+                    | "icpep"
+                    | "cisco"
+                    | "cyberph";
                   try {
                     await fetch("/api/env/variant", {
                       method: "POST",
@@ -448,7 +460,8 @@ export default function PreviewPane({
                   setMissing(Array.isArray(d2.missing) ? d2.missing : []);
                   if (
                     d2.systemVariant === "icpep" ||
-                    d2.systemVariant === "cisco"
+                    d2.systemVariant === "cisco" ||
+                    d2.systemVariant === "cyberph"
                   )
                     setSystemVariantState(d2.systemVariant);
                   else setSystemVariantState("default");
@@ -457,6 +470,7 @@ export default function PreviewPane({
                 <option value="default">Default (.env)</option>
                 <option value="icpep">ICPEP SE - PUP Manila</option>
                 <option value="cisco">CNCP - Cisco NetConnect PUP</option>
+                <option value="cyberph">CyberPH</option>
               </select>
             </div>
             {/* Brand logo based on selection */}
@@ -464,6 +478,7 @@ export default function PreviewPane({
               // Decide brand from system variant
               const isIcpep = systemVariant === "icpep";
               const isCisco = systemVariant === "cisco";
+              const isCyberph = systemVariant === "cyberph";
               if (isIcpep)
                 return (
                   <Image
@@ -479,6 +494,16 @@ export default function PreviewPane({
                   <Image
                     src="/cisco-logo.jpg"
                     alt="Cisco"
+                    width={80}
+                    height={32}
+                    className="h-8 w-auto rounded-sm border"
+                  />
+                );
+              if (isCyberph)
+                return (
+                  <Image
+                    src="/cyberph-logo.svg"
+                    alt="CyberPH"
                     width={80}
                     height={32}
                     className="h-8 w-auto rounded-sm border"
@@ -544,7 +569,11 @@ export default function PreviewPane({
                 if (!ready || !csv || !mapping || isSending || cooldownSec > 0)
                   return;
                 try {
-                  if (systemVariant === "icpep" || systemVariant === "cisco") {
+                  if (
+                    systemVariant === "icpep" ||
+                    systemVariant === "cisco" ||
+                    systemVariant === "cyberph"
+                  ) {
                     setShowConfirmModal(true);
                     return;
                   }

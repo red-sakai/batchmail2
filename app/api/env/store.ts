@@ -10,8 +10,8 @@ export type SenderEnv = {
 // In-memory multi-profile store
 let profiles: Record<string, SenderEnv> = {};
 let activeProfile: string | null = null;
-type SystemVariant = 'default' | 'icpep' | 'cisco';
-let systemVariant: SystemVariant = 'default';
+type SystemVariant = "default" | "icpep" | "cisco" | "cyberph";
+let systemVariant: SystemVariant = "default";
 
 export function setProfile(name: string, values: SenderEnv) {
   const clean = name.trim();
@@ -40,8 +40,12 @@ export function getActiveProfileName(): string | null {
   return activeProfile;
 }
 
-export function getSystemVariant(): SystemVariant { return systemVariant; }
-export function setSystemVariant(variant: SystemVariant) { systemVariant = variant; }
+export function getSystemVariant(): SystemVariant {
+  return systemVariant;
+}
+export function setSystemVariant(variant: SystemVariant) {
+  systemVariant = variant;
+}
 
 export function getActiveEnv(): SenderEnv {
   // If a named profile is active, use it
@@ -50,18 +54,25 @@ export function getActiveEnv(): SenderEnv {
   }
   // Otherwise, derive from process.env based on selected system variant
   const env = process.env as Record<string, string | undefined>;
-  if (systemVariant === 'icpep') {
+  if (systemVariant === "icpep") {
     return {
       SENDER_EMAIL: env.ICPEP_SENDER_EMAIL,
       SENDER_APP_PASSWORD: env.ICPEP_SENDER_PASSWORD,
       SENDER_NAME: env.ICPEP_SENDER_NAME,
     };
   }
-  if (systemVariant === 'cisco') {
+  if (systemVariant === "cisco") {
     return {
       SENDER_EMAIL: env.CISCO_SENDER_EMAIL,
       SENDER_APP_PASSWORD: env.CISCO_SENDER_PASSWORD,
       SENDER_NAME: env.CISCO_SENDER_NAME,
+    };
+  }
+  if (systemVariant === "cyberph") {
+    return {
+      SENDER_EMAIL: env.CYBERPH_SENDER_EMAIL,
+      SENDER_APP_PASSWORD: env.CYBERPH_SENDER_PASSWORD,
+      SENDER_NAME: env.CYBERPH_SENDER_NAME,
     };
   }
   // default
