@@ -1,44 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## BatchMail UI
 
-## Getting Started
+BatchMail provides an interface for generating personalized email HTML bodies from a CSV file and a Jinja-style HTML template (rendered client-side with Nunjucks).
 
-First, run the development server:
+### Features
 
-```bash
+1. Upload CSV (with headers) and auto-detect recipient and name columns.
+2. Map columns manually if auto-detection is wrong.
+3. Create or upload an HTML template containing variables like `{{ name }}` or any header (e.g. `{{ company }}`).
+4. Preview the first few rendered emails safely in sandboxed iframes.
+5. Export a JSON payload: `[ { to, name, html }, ... ]` for further processing / sending via your backend.
+
+### Expected CSV Format
+
+The CSV must include a header row. Common column names auto-detected:
+
+- Recipient/email: `email`, `recipient`, `to`, `address`
+- Name: `name`, `full_name`, `first_name`
+
+Other columns are available as template variables automatically.
+
+Example:
+
+```csv
+email,name,company
+alice@example.com,Alice,Wonder Corp
+bob@example.com,Bob,Builder LLC
+```
+
+### Template Syntax
+
+Uses Nunjucks (close to Jinja):
+
+- Variables: `{{ name }}`, `{{ company }}`
+- Conditionals: `{% if company %}...{% endif %}`
+- Loops: `{% for r in rows %}...{% endfor %}` (You typically won't loop here; each render is per row.)
+
+Minimal example:
+
+```html
+<html>
+	<body>
+		<p>Hello {{ name }},</p>
+		<p>We love working with {{ company }}.</p>
+	</body>
+</html>
+```
+
+### Running Locally
+
+```powershell
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-### Environment Variables
+### Exported JSON
 
-Create a `.env.local` file in the project root with the backend URL (default shown):
+Click "Export JSON" to download `batchmail-payload.json`:
 
+```jsonc
+[
+	{
+		"to": "alice@example.com",
+		"name": "Alice",
+		"html": "<html>... personalized ...</html>"
+	}
+]
 ```
-NEXT_PUBLIC_BACKEND_URL=http://127.0.0.1:8000
-```
 
-Restart the dev server after updating environment variables.
+### Next Steps (Backend Integration)
 
-### Sending Emails End-to-End
+You can POST the exported JSON to a backend that sends emails (e.g. using Nodemailer, AWS SES, SendGrid). Ensure you sanitize or trust the template source before sending.
 
-1. Start the FastAPI backend: `uvicorn app.main:app --reload` (from the `automail-backend` folder).
-2. In the frontend Table Editor, upload or edit your CSV. Ensure it contains `recipient` and `email` columns.
-3. Choose an HTML template (managed in the Template Editor), adjust the subject/CC list, and toggle attachments as needed.
-4. Click **Send Emails**. The frontend uploads your dataset to the backend and triggers `/emails/send-bulk`, using the selected template.
-5. Track progress in the backend logs (`email_log.csv` plus console output).
+### Development Notes
 
-The backend resolves templates via the Next.js API (`/api/templates`), so both servers must be running for email sending to work.
+- Client-only rendering; no data is sent server-side during preview.
+- If your CSV is large, consider implementing pagination/virtualization.
+- For security, the preview iframes are sandboxed; remove sandbox restrictions only if you trust the template content.
 
-## Learn More
+### License
 
-- [FastAPI + Email Service Documentation](../automail-backend/README.md)
-- [Next.js Documentation](https://nextjs.org/docs)
-
-Happy automailing!
+MIT
