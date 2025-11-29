@@ -1,5 +1,6 @@
 "use client";
 
+import { normalizeNameKey } from "@/lib/normalizeName";
 import { useCallback, useMemo, useRef } from "react";
 import type { ParsedCsv, CsvMapping } from "./CsvUploader";
 
@@ -20,8 +21,6 @@ type Props = {
 
 export default function AttachmentsUploader({ csv, mapping, value, onChange }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-
-  const normalize = useCallback((s: string) => s.trim().toLowerCase(), []);
   const fileBaseName = useCallback((name: string) => {
     const idx = name.lastIndexOf('.');
     return idx > 0 ? name.slice(0, idx) : name;
@@ -30,9 +29,11 @@ export default function AttachmentsUploader({ csv, mapping, value, onChange }: P
   const rowsNameSet = useMemo(() => {
     if (!csv || !mapping) return new Set<string>();
     const s = new Set<string>();
-    (csv.rows as Array<Record<string,string>>).forEach(r => s.add(normalize(String(r[mapping.name] || ''))));
+    (csv.rows as Array<Record<string, string>>).forEach((r) =>
+      s.add(normalizeNameKey(String(r[mapping.name] || "")))
+    );
     return s;
-  }, [csv, mapping, normalize]);
+  }, [csv, mapping]);
 
   const computed = useMemo(() => {
     const files = Object.values(value).reduce((acc, arr) => acc + arr.length, 0);
@@ -77,7 +78,7 @@ export default function AttachmentsUploader({ csv, mapping, value, onChange }: P
     for (const f of Array.from(files)) {
       try {
         const contentBase64 = await fileToBase64(f);
-        const key = normalize(fileBaseName(f.name));
+        const key = normalizeNameKey(fileBaseName(f.name));
         const entry: AttachmentEntry = {
           filename: f.name,
           contentBase64,

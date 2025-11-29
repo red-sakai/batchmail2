@@ -1,3 +1,4 @@
+import { normalizeNameKey } from "@/lib/normalizeName";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import nunjucks from "nunjucks";
@@ -116,10 +117,6 @@ export async function POST(req: Request) {
   let index = 0;
   let sent = 0;
   let failed = 0;
-  const norm = (s: string) =>
-    String(s || "")
-      .trim()
-      .toLowerCase();
   const delay = typeof delayMs === "number" && delayMs > 0 ? delayMs : 2000; // default 2s
   const jitter =
     typeof jitterMs === "number" && jitterMs >= 0 ? Math.floor(jitterMs) : 250; // default 250ms
@@ -139,7 +136,7 @@ export async function POST(req: Request) {
           r,
           mapping
         );
-        const nameKey = norm(r[mapping.name]);
+        const nameKey = normalizeNameKey(r[mapping.name] || "");
         const atts =
           nameKey && attachmentsByName ? attachmentsByName[nameKey] || [] : [];
         try {

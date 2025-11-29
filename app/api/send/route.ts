@@ -1,3 +1,4 @@
+import { normalizeNameKey } from "@/lib/normalizeName";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import nunjucks from "nunjucks";
@@ -100,8 +101,6 @@ export async function POST(req: Request) {
   const successes: Success[] = [];
   const failures: Failure[] = [];
 
-  const normalize = (s: string) => s.trim().toLowerCase();
-
   for (const r of rows) {
     const to = r[mapping.recipient];
     if (!to) continue;
@@ -134,7 +133,7 @@ export async function POST(req: Request) {
     }
 
     const nameRaw = r[mapping.name] || "";
-    const nameKey = normalize(String(nameRaw));
+    const nameKey = normalizeNameKey(String(nameRaw));
     const atts =
       attachmentsByName && nameKey ? attachmentsByName[nameKey] || [] : [];
 

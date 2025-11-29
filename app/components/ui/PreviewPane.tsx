@@ -1,13 +1,14 @@
 "use client";
 
-import nunjucks from "nunjucks";
+import { normalizeNameKey } from "@/lib/normalizeName";
 import Image from "next/image";
+import nunjucks from "nunjucks";
 import {
   useCallback,
-  useMemo,
   useEffect,
-  useState,
+  useMemo,
   useRef,
+  useState,
 } from "react";
 import type { CsvMapping, ParsedCsv } from "./CsvUploader";
 // email editing is performed in the Template tab
@@ -209,7 +210,7 @@ export default function PreviewPane({
       const email = row[mapping.recipient];
       const nameVal = row[mapping.name];
       if (!email || !nameVal) continue;
-      const normalized = nameVal.toString().trim().toLowerCase();
+      const normalized = normalizeNameKey(nameVal.toString());
       const entries = attachmentsByName[normalized];
       if (!entries || entries.length === 0) continue;
       const files = entries

@@ -8,7 +8,6 @@ import {
   useState,
 } from "react";
 import createDOMPurify from "dompurify";
-import type { DOMPurifyI } from "dompurify";
 
 type Props = {
   value: string;
@@ -18,7 +17,9 @@ type Props = {
   variables?: string[];
 };
 
-let domPurifyInstance: DOMPurifyI | null = null;
+type DomPurifyInstance = ReturnType<typeof createDOMPurify>;
+
+let domPurifyInstance: DomPurifyInstance | null = null;
 const getPurifier = () => {
   if (domPurifyInstance) return domPurifyInstance;
   if (typeof window === "undefined") return null;
